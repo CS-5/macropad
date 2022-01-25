@@ -1,3 +1,6 @@
+import board
+import busio
+
 from adafruit_macropad import MacroPad
 from collections import namedtuple
 
@@ -28,6 +31,7 @@ class Pad:
   @classmethod
   def _init_macropad(cls) -> MacroPad:
       """Initialize the macropad component."""
+
       macropad = MacroPad()
       macropad.display.auto_refresh = False
       macropad.pixels.auto_write = False
@@ -37,11 +41,13 @@ class Pad:
   @property
   def encoder_position(self) -> int:
       """Return the position of the encoder."""
+
       return self.macropad.encoder
 
   @property
   def encoder_switch(self) -> bool:
       """Return the state of the encoder switch."""
+
       self.macropad.encoder_switch_debounced.update()
       return self.macropad.encoder_switch_debounced.pressed
 
@@ -62,6 +68,7 @@ class Pad:
           Tuple[Union[EncoderButtonEvent, EncoderEvent, KeyEvent], ...]:
               A tuple of Events.
       """
+      
       position = self.encoder_position
       if position != self._last_encoder_position:
           last_encoder_position = self._last_encoder_position
@@ -77,3 +84,19 @@ class Pad:
           yield KeyEvent(number=key_event.key_number, pressed=key_event.pressed)
 
       yield from self.execute_ready_timers()
+
+class HostConnection:
+
+  def __init__(self, baud_rate: int = 115200):
+    self.baud_rate = baud_rate
+    self.uart = self._init_uart(baud_rate=baud_rate)
+  
+  @classmethod
+  def _init_uart(cls, baud_rate: int) -> busio.UART:
+    return busio.UART(board.TX, board.RX, baudrate=baud_rate)
+
+  def read(self):
+    return self.uart.read()
+  
+  def write(self, data: bytes):
+    self.uart.write(data)
