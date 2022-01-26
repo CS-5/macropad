@@ -13,11 +13,11 @@ b1.switch_to_input(pull=digitalio.Pull.UP)
 # Activate development mode if KEY1 is pressed
 if not b1.value:
     print("Dev Mode: Active")
-    usb_cdc.enable(console=True, data=True)
+    usb_cdc.enable(console=True, data=True) # Enable both console and data in dev mode
     sleep(5)
 else:
     displayio.release_displays()
-    usb_cdc.enable(console=False, data=True)
+    usb_cdc.enable(console=False, data=True) # Enable just data in normal mode
     storage.disable_usb_drive()
 
 #usb_midi.disable()
